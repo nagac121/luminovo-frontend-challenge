@@ -52,7 +52,7 @@ const ProjectCard: React.FC<CardProps> = ({ date, name, status }) => {
         <Typography variant="h5" component="h2">
           {name}
         </Typography>
-        <Typography style={{ color: "white", marginBottom: 10 }}>
+        <Typography style={{ color: "textSecondary", marginBottom: 10 }}>
           {status}
         </Typography>
       </div>
