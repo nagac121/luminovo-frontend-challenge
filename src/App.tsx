@@ -2,7 +2,7 @@ import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 interface ProjectItem {
   creationDate: any;
   projectName: any;
@@ -67,27 +67,41 @@ function App() {
 
   const classes = useStyles();
 
+  // Fetch Projects
+  const fetchProjects = useCallback(async () => {
+    const res = await fetch("http://localhost:3004/projects");
+    let data = await res.json();
+    data = sanitizeProjectsData(data);
+    return data;
+  }, []);
+
+  function sanitizeProjectsData(projectsData: any) {
+    const prjDataArr: any[] = [];
+
+    for (let project of projectsData.data) {
+      if (project["projectName"]) {
+        prjDataArr.push(project);
+      } else {
+        project["projectName"] = project["projectNamee"];
+        delete project["projectNamee"];
+        prjDataArr.push(project);
+      }
+    }
+    return prjDataArr;
+  }
   // Specify that API is called once on page load
   useEffect(() => {
     const getProjects = async () => {
       const projectsFromServer = await fetchProjects();
-      setProjects(projectsFromServer.data);
+      setProjects(projectsFromServer);
     };
     getProjects();
-  }, []);
-
-  // Fetch Projects
-  const fetchProjects = async () => {
-    const res = await fetch("http://localhost:3004/projects");
-    const data = await res.json();
-
-    return data;
-  };
+  }, [fetchProjects]);
 
   function handleChange(sortedType: "earliest" | "latest") {
     const sorted = [...projects].sort((a, b) => {
       let date1 = new Date(a.creationDate);
-      let date2 = b.creationDate;
+      let date2 = new Date(b.creationDate);
 
       if (sortedType === "earliest") {
         return new Date(date1).getTime() - date2.getTime();
@@ -122,14 +136,16 @@ function App() {
         </Button>
       </div>
       <div className="projects-content">
-        {projects.map((project) => (
-          <ProjectCard
-            key={`${project.id}-${project.projectName}`}
-            date={project.creationDate}
-            name={project.projectName}
-            status={project.status}
-          />
-        ))}
+        {projects.map((project) => {
+          return (
+            <ProjectCard
+              key={`${project.id}-${project.projectName}`}
+              date={project.creationDate}
+              name={project.projectName}
+              status={project.status}
+            />
+          );
+        })}
       </div>
     </div>
   );
