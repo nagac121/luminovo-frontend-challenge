@@ -79,6 +79,11 @@ function App() {
     const prjDataArr: any[] = [];
 
     for (let project of projectsData.data) {
+      if (new Date(project.creationDate).toDateString() === "Invalid Date") {
+        // adding hardcoded date to recognize invalid dates
+        project.creationDate = new Date("2000-01-01T00:00:00.000Z").toISOString();
+      }
+
       if (project["projectName"]) {
         prjDataArr.push(project);
       } else {
@@ -89,6 +94,7 @@ function App() {
     }
     return prjDataArr;
   }
+
   // Specify that API is called once on page load
   useEffect(() => {
     const getProjects = async () => {
@@ -104,13 +110,15 @@ function App() {
       let date2 = new Date(b.creationDate);
 
       if (sortedType === "earliest") {
-        return new Date(date1).getTime() - date2.getTime();
+        return date1.getTime() - date2.getTime();
       } else if (sortedType === "latest") {
         return date2.getTime() - date1.getTime();
       } else {
         return 0;
       }
     });
+    // console.log("sorted: ",sorted);
+    
     setProjects(sorted);
   }
 
