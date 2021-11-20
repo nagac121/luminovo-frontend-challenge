@@ -5,6 +5,9 @@ import Typography from "@material-ui/core/Typography";
 import React, { useEffect, useState, useCallback } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import DateTimePicker from "@mui/lab/DateTimePicker";
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
 
 interface ProjectItem {
   creationDate: any;
@@ -16,6 +19,11 @@ interface ProjectItem {
 const useStyles = makeStyles({
   root: {
     margin: 10,
+  },
+  filteringLabel: {
+    marginTop: 10,
+    marginLeft: 10,
+    display: "inline-block",
   },
 });
 
@@ -36,6 +44,10 @@ const useCardStyles = makeStyles({
   pos: {
     marginBottom: 10,
   },
+  cardContent: {
+    marginLeft: 10,
+    marginTop: 10,
+  },
 });
 
 const ProjectCard: React.FC<CardProps> = ({ date, name, status }) => {
@@ -44,7 +56,7 @@ const ProjectCard: React.FC<CardProps> = ({ date, name, status }) => {
 
   return (
     <Card className={classes.root} variant="outlined">
-      <div>
+      <div className={classes.cardContent}>
         <Typography
           data-testid="date"
           className={classes.title}
@@ -66,6 +78,10 @@ const ProjectCard: React.FC<CardProps> = ({ date, name, status }) => {
 function App() {
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [searchResult, setSearchResult] = useState<ProjectItem[]>([]);
+  const [dateValue, setDateValue] = React.useState(
+    new Date("2014-08-18T21:11:54")
+  );
+
   // const [sortedField, setSortedField] = useState<string>("");
   // let sortedProjects = [...projects];
 
@@ -146,6 +162,10 @@ function App() {
     );
     setSearchResult(searchedProjects);
   }
+  const handleDateChange = (newValue: any) => {
+    console.log(newValue);
+    setDateValue(newValue);
+  };
 
   // render App
   return (
@@ -159,14 +179,19 @@ function App() {
         >
           Earliest
         </Button>
+
         <Autocomplete
           id="project-search"
           freeSolo
           options={projects.map((option) => option.projectName)}
           renderInput={(params) => (
-            <TextField {...params} label="Search Project" />
+            <TextField
+              {...params}
+              label="Search Project"
+              sx={{ width: 180, mt: 1 }}
+              size="small"
+            />
           )}
-          sx={{ width: 180 }}
           onChange={(event, newValue) => handleSearch(event, newValue)}
         />
         <Button
@@ -177,6 +202,33 @@ function App() {
         >
           Latest
         </Button>
+      </div>
+      <div>
+        <Typography variant="h6" className={classes.filteringLabel}>
+          Filtering:
+        </Typography>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <DateTimePicker
+            label="Date&Time picker"
+            value={dateValue}
+            onChange={handleDateChange}
+            renderInput={(params) => {
+              // console.log("input: ", params.inputProps);
+              return <TextField {...params} sx={{ m: 1 }} size="small" />;
+            }}
+          />
+        </LocalizationProvider>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <DateTimePicker
+            label="Date&Time picker"
+            value={dateValue}
+            onChange={handleDateChange}
+            renderInput={(params) => {
+              // console.log("input: ", params.inputProps);
+              return <TextField {...params} sx={{ m: 1 }} size="small" />;
+            }}
+          />
+        </LocalizationProvider>
       </div>
       <div className="projects-content">
         {/* search len: {searchResult.length}
