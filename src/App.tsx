@@ -65,6 +65,7 @@ const ProjectCard: React.FC<CardProps> = ({ date, name, status }) => {
 
 function App() {
   const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [searchResult, setSearchResult] = useState<ProjectItem[]>([]);
   // const [sortedField, setSortedField] = useState<string>("");
   // let sortedProjects = [...projects];
 
@@ -111,7 +112,8 @@ function App() {
     getProjects();
   }, [fetchProjects]);
 
-  function handleChange(sortedType: "earliest" | "latest") {
+  function handleClick(sortedType: "earliest" | "latest") {
+    setSearchResult([]);
     const sorted = sortProjects(projects, sortedType);
     setProjects(sorted);
   }
@@ -131,8 +133,18 @@ function App() {
     });
   }
 
-  function handleSearch(event: any, newValue: any): void {
-    fetchProjects(newValue);
+  function handleSearch(event: any, newValue: string): void {
+    // console.log("srch: ",newValue);
+    const searchedProjects = projects.reduce(
+      (acc: ProjectItem[], curVal: ProjectItem): ProjectItem[] => {
+        if (curVal.projectName === newValue) {
+          acc.push(curVal);
+        }
+        return acc;
+      },
+      []
+    );
+    setSearchResult(searchedProjects);
   }
 
   // render App
@@ -142,7 +154,7 @@ function App() {
         <Button
           className={classes.root}
           variant="contained"
-          onClick={() => handleChange("earliest")}
+          onClick={() => handleClick("earliest")}
           data-testid="earliest-button"
         >
           Earliest
@@ -160,23 +172,40 @@ function App() {
         <Button
           className={classes.root}
           variant="contained"
-          onClick={() => handleChange("latest")}
+          onClick={() => handleClick("latest")}
           data-testid="latest-button"
         >
           Latest
         </Button>
       </div>
       <div className="projects-content">
-        {projects.map((project) => {
-          return (
-            <ProjectCard
-              key={`${project.id}-${project.projectName}`}
-              date={project.creationDate}
-              name={project.projectName}
-              status={project.status}
-            />
-          );
-        })}
+        {/* search len: {searchResult.length}
+        <br />
+        projects len: {projects.length} */}
+        {/* display projects */}
+        {!searchResult.length &&
+          projects.map((project) => {
+            return (
+              <ProjectCard
+                key={`${project.id}-${project.projectName}`}
+                date={project.creationDate}
+                name={project.projectName}
+                status={project.status}
+              />
+            );
+          })}
+        {/* display search results */}
+        {!!searchResult.length &&
+          searchResult.map((project) => {
+            return (
+              <ProjectCard
+                key={`${project.id}-${project.projectName}`}
+                date={project.creationDate}
+                name={project.projectName}
+                status={project.status}
+              />
+            );
+          })}
       </div>
     </div>
   );
