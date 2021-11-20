@@ -25,6 +25,9 @@ const useStyles = makeStyles({
     marginLeft: 10,
     display: "inline-block",
   },
+  datePicker: {
+    width: "220px",
+  },
 });
 
 interface CardProps {
@@ -214,7 +217,14 @@ function App() {
             onChange={handleDateChange}
             renderInput={(params) => {
               // console.log("input: ", params.inputProps);
-              return <TextField {...params} sx={{ m: 1 }} size="small" />;
+              return (
+                <TextField
+                  {...params}
+                  size="small"
+                  sx={{m:1}}
+                  className={classes.datePicker}
+                />
+              );
             }}
           />
         </LocalizationProvider>
@@ -225,7 +235,8 @@ function App() {
             onChange={handleDateChange}
             renderInput={(params) => {
               // console.log("input: ", params.inputProps);
-              return <TextField {...params} sx={{ m: 1 }} size="small" />;
+              return <TextField {...params}  sx={{m:1}}
+              className={classes.datePicker} size="small" />;
             }}
           />
         </LocalizationProvider>
