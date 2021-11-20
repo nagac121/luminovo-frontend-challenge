@@ -3,6 +3,9 @@ import Card from "@material-ui/core/Card";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import React, { useEffect, useState, useCallback } from "react";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
+
 interface ProjectItem {
   creationDate: any;
   projectName: any;
@@ -68,8 +71,9 @@ function App() {
   const classes = useStyles();
 
   // Fetch Projects
-  const fetchProjects = useCallback(async () => {
-    const res = await fetch("http://localhost:3004/projects");
+  const fetchProjects = useCallback(async (newValue) => {
+    let url = "http://localhost:3004/projects";
+    const res = await fetch(url);
     let data = await res.json();
     data = sanitizeProjectsData(data);
     return data;
@@ -77,11 +81,14 @@ function App() {
 
   function sanitizeProjectsData(projectsData: any) {
     const prjDataArr: any[] = [];
+    // console.log("data len: ", projectsData.data.length);
 
     for (let project of projectsData.data) {
       if (new Date(project.creationDate).toDateString() === "Invalid Date") {
         // adding hardcoded date to recognize invalid dates
-        project.creationDate = new Date("2000-01-01T00:00:00.000Z").toISOString();
+        project.creationDate = new Date(
+          "2000-01-01T00:00:00.000Z"
+        ).toISOString();
       }
 
       if (project["projectName"]) {
@@ -98,14 +105,19 @@ function App() {
   // Specify that API is called once on page load
   useEffect(() => {
     const getProjects = async () => {
-      const projectsFromServer = await fetchProjects();
+      const projectsFromServer = await fetchProjects(null);
       setProjects(projectsFromServer);
     };
     getProjects();
   }, [fetchProjects]);
 
   function handleChange(sortedType: "earliest" | "latest") {
-    const sorted = [...projects].sort((a, b) => {
+    const sorted = sortProjects(projects, sortedType);
+    setProjects(sorted);
+  }
+
+  function sortProjects(projects: ProjectItem[], sortedType: string) {
+    return [...projects].sort((a, b) => {
       let date1 = new Date(a.creationDate);
       let date2 = new Date(b.creationDate);
 
@@ -117,9 +129,10 @@ function App() {
         return 0;
       }
     });
-    // console.log("sorted: ",sorted);
-    
-    setProjects(sorted);
+  }
+
+  function handleSearch(event: any, newValue: any): void {
+    fetchProjects(newValue);
   }
 
   // render App
@@ -134,6 +147,16 @@ function App() {
         >
           Earliest
         </Button>
+        <Autocomplete
+          id="project-search"
+          freeSolo
+          options={projects.map((option) => option.projectName)}
+          renderInput={(params) => (
+            <TextField {...params} label="Search Project" />
+          )}
+          sx={{ width: 180 }}
+          onChange={(event, newValue) => handleSearch(event, newValue)}
+        />
         <Button
           className={classes.root}
           variant="contained"
