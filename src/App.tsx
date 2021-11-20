@@ -20,10 +20,20 @@ const useStyles = makeStyles({
   root: {
     margin: 10,
   },
-  filteringLabel: {
-    marginTop: 10,
+  fieldStyles: {
+    borderColor: "rgba(0, 0, 0, 0.1)",
+    margin: 10,
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
+  legendStyles:{
     marginLeft: 10,
-    display: "inline-block",
+    paddingLeft: 10,
+    paddingRight: 10,
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "rgba(0, 0, 0, 0.6)"
   },
   datePicker: {
     width: "220px",
@@ -207,39 +217,53 @@ function App() {
         </Button>
       </div>
       <div>
-        <Typography variant="h6" className={classes.filteringLabel}>
-          Filtering:
-        </Typography>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DateTimePicker
-            label="Date&Time picker"
-            value={dateValue}
-            onChange={handleDateChange}
-            renderInput={(params) => {
-              // console.log("input: ", params.inputProps);
-              return (
-                <TextField
-                  {...params}
-                  size="small"
-                  sx={{m:1}}
-                  className={classes.datePicker}
-                />
-              );
-            }}
-          />
-        </LocalizationProvider>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DateTimePicker
-            label="Date&Time picker"
-            value={dateValue}
-            onChange={handleDateChange}
-            renderInput={(params) => {
-              // console.log("input: ", params.inputProps);
-              return <TextField {...params}  sx={{m:1}}
-              className={classes.datePicker} size="small" />;
-            }}
-          />
-        </LocalizationProvider>
+        <fieldset className={classes.fieldStyles}>
+          <legend className={classes.legendStyles}>Filtering</legend>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DateTimePicker
+              label="Date&Time picker"
+              value={dateValue}
+              onChange={handleDateChange}
+              renderInput={(params) => {
+                // console.log("input: ", params.inputProps);
+                return (
+                  <TextField
+                    {...params}
+                    size="small"
+                    sx={{ m: 1 }}
+                    className={classes.datePicker}
+                  />
+                );
+              }}
+            />
+          </LocalizationProvider>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DateTimePicker
+              label="Date&Time picker"
+              value={dateValue}
+              onChange={handleDateChange}
+              renderInput={(params) => {
+                // console.log("input: ", params.inputProps);
+                return (
+                  <TextField
+                    {...params}
+                    sx={{ m: 1 }}
+                    className={classes.datePicker}
+                    size="small"
+                  />
+                );
+              }}
+            />
+          </LocalizationProvider>
+          <Button
+            className={classes.root}
+            variant="contained"
+            onClick={() => handleClick("latest")}
+            data-testid="latest-button"
+          >
+            Filter
+          </Button>
+        </fieldset>
       </div>
       <div className="projects-content">
         {/* search len: {searchResult.length}
