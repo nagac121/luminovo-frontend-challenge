@@ -162,7 +162,7 @@ function App() {
   }
 
   function handleSearch(event: any, newValue: string): void {
-    // console.log("srch: ",newValue);
+    // console.log("srch: ",event.target, newValue);
     const searchedProjects = projects.reduce(
       (acc: ProjectItem[], curVal: ProjectItem): ProjectItem[] => {
         if (curVal.projectName === newValue) {
@@ -181,6 +181,10 @@ function App() {
     } else {
       setToDateValue(newValue);
     }
+  };
+
+  const handleFilterClick = () => {
+    // console.log("filter: ", fromDateValue, toDateValue);
   };
 
   // render App
@@ -261,13 +265,15 @@ function App() {
           <Button
             className={classes.root}
             variant="contained"
-            onClick={() => handleClick("latest")}
+            onClick={handleFilterClick}
             data-testid="latest-button"
+            disabled={!fromDateValue || !toDateValue}
           >
             Filter
           </Button>
         </fieldset>
       </div>
+
       <div className="projects-content">
         {/* search len: {searchResult.length}
         <br />
