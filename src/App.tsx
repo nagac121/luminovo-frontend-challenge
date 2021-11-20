@@ -27,13 +27,13 @@ const useStyles = makeStyles({
     flexWrap: "wrap",
     justifyContent: "center",
   },
-  legendStyles:{
+  legendStyles: {
     marginLeft: 10,
     paddingLeft: 10,
     paddingRight: 10,
     fontSize: 15,
     fontWeight: "bold",
-    color: "rgba(0, 0, 0, 0.6)"
+    color: "rgba(0, 0, 0, 0.6)",
   },
   datePicker: {
     width: "220px",
@@ -91,9 +91,8 @@ const ProjectCard: React.FC<CardProps> = ({ date, name, status }) => {
 function App() {
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [searchResult, setSearchResult] = useState<ProjectItem[]>([]);
-  const [dateValue, setDateValue] = React.useState(
-    new Date("2014-08-18T21:11:54")
-  );
+  const [fromDateValue, setFromDateValue] = useState(null);
+  const [toDateValue, setToDateValue] = useState(null);
 
   // const [sortedField, setSortedField] = useState<string>("");
   // let sortedProjects = [...projects];
@@ -175,9 +174,13 @@ function App() {
     );
     setSearchResult(searchedProjects);
   }
-  const handleDateChange = (newValue: any) => {
-    console.log(newValue);
-    setDateValue(newValue);
+  const handleDateChange = (flag: string, newValue: any) => {
+    // console.log(flag, newValue);
+    if (flag === "fromDate") {
+      setFromDateValue(newValue);
+    } else {
+      setToDateValue(newValue);
+    }
   };
 
   // render App
@@ -221,9 +224,9 @@ function App() {
           <legend className={classes.legendStyles}>Filtering</legend>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DateTimePicker
-              label="Date&Time picker"
-              value={dateValue}
-              onChange={handleDateChange}
+              label="From Date"
+              value={fromDateValue}
+              onChange={(newValue) => handleDateChange("fromDate", newValue)}
               renderInput={(params) => {
                 // console.log("input: ", params.inputProps);
                 return (
@@ -239,9 +242,9 @@ function App() {
           </LocalizationProvider>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DateTimePicker
-              label="Date&Time picker"
-              value={dateValue}
-              onChange={handleDateChange}
+              label="End Date"
+              value={toDateValue}
+              onChange={(newValue) => handleDateChange("toDate", newValue)}
               renderInput={(params) => {
                 // console.log("input: ", params.inputProps);
                 return (
