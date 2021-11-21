@@ -93,6 +93,7 @@ function App() {
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [fromDateValue, setFromDateValue] = useState("");
   const [toDateValue, setToDateValue] = useState("");
+  const [statusDDL, setStatusDDL] = useState<any>([]);
   const classes = useStyles();
 
   // Fetch Projects
@@ -131,6 +132,16 @@ function App() {
     const getProjects = async () => {
       const projectsFromServer = await fetchProjects(null);
       setProjects(projectsFromServer);
+      
+      let statusSet = new Set();
+      projectsFromServer.forEach((project: ProjectItem) => {
+        let status = project.status === "inProgress"? "In Progress":project.status;
+        statusSet.add(status);
+      });
+      let statusArr:any[] = [];
+      statusArr = Array.from(statusSet);
+      setStatusDDL(statusArr);
+      
     };
     getProjects();
   }, [fetchProjects]);
@@ -219,13 +230,13 @@ function App() {
         <Autocomplete
           id="project-search"
           freeSolo
-          options={projects.map((option) => option.projectName)}
+          options={projects.map((project) => project.projectName)}
           autoComplete={true}
           autoHighlight={true}
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Search Project"
+              label="Search By Project"
               sx={{ width: 180, mt: 1 }}
               size="small"
             />
@@ -233,6 +244,21 @@ function App() {
           onChange={(event, newValue, selectOption) =>
             handleSearchChange(event, newValue, selectOption)
           }
+        />
+        <Autocomplete
+          id="status-search"
+          freeSolo
+          options={statusDDL}
+          autoComplete={true}
+          autoHighlight={true}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Search By Status"
+              sx={{ width: 180, mt: 1 }}
+              size="small"
+            />
+          )}
         />
 
         <Button
@@ -301,7 +327,9 @@ function App() {
         {projects.map((project) => {
           return (
             <ProjectCard
-              key={`${project.id}-${project.projectName}`}
+              key={`${project.id}-${project.projectName}-${
+                project.creationDate
+              }-${project.status}-${new Date().toISOString()}`}
               date={project.creationDate}
               name={project.projectName}
               status={project.status}
