@@ -132,16 +132,22 @@ function App() {
     const getProjects = async () => {
       const projectsFromServer = await fetchProjects(null);
       setProjects(projectsFromServer);
-      
+      // preparing status obj
       let statusSet = new Set();
       projectsFromServer.forEach((project: ProjectItem) => {
-        let status = project.status === "inProgress"? "In Progress":project.status;
+        let status =
+          project.status === "inProgress" ? "In Progress" : project.status;
         statusSet.add(status);
       });
-      let statusArr:any[] = [];
+      let statusArr: any[] = [];
+      let statusArrObj = [];
       statusArr = Array.from(statusSet);
-      setStatusDDL(statusArr);
-      
+      for (let item of statusArr) {
+        statusArrObj.push({
+          status: item,
+        });
+      }
+      setStatusDDL(statusArrObj);
     };
     getProjects();
   }, [fetchProjects]);
@@ -185,7 +191,7 @@ function App() {
       setProjects(searchedProjects);
     } else {
       // createOption ie typed manually
-      alert("Select Project from auto complete suggestions !");
+      alert("Select Project from suggestions !");
     }
   }
 
@@ -213,6 +219,32 @@ function App() {
     );
     setProjects(filteredProjects);
   };
+
+  function handleStatusChange(
+    event: any,
+    newValue: string,
+    selectOption: string
+  ) {
+    if (selectOption === "clear") {
+      setProjects(fetchedProjects);
+    } else if (selectOption === "selectOption") {
+      const searchedProjects = fetchedProjects.reduce(
+        (acc: ProjectItem[], curVal: ProjectItem): ProjectItem[] => {
+          const status =
+            curVal.status === "inProgress" ? "In Progress" : curVal.status;
+          if (status === newValue) {
+            acc.push(curVal);
+          }
+          return acc;
+        },
+        []
+      );
+      setProjects(searchedProjects);
+    } else {
+      // createOption ie typed manually
+      alert("Select status from suggestions !");
+    }
+  }
 
   // render App
   return (
@@ -245,10 +277,11 @@ function App() {
             handleSearchChange(event, newValue, selectOption)
           }
         />
+
         <Autocomplete
           id="status-search"
           freeSolo
-          options={statusDDL}
+          options={statusDDL.map((project: any) => project.status)}
           autoComplete={true}
           autoHighlight={true}
           renderInput={(params) => (
@@ -259,6 +292,9 @@ function App() {
               size="small"
             />
           )}
+          onChange={(event, newValue, selectOption) =>
+            handleStatusChange(event, newValue + "", selectOption)
+          }
         />
 
         <Button
@@ -320,16 +356,10 @@ function App() {
       </div>
 
       <div className="projects-content">
-        {/* search len: {searchResult.length}
-        <br />
-        projects len: {projects.length} */}
-        {/* display projects */}
         {projects.map((project) => {
           return (
             <ProjectCard
-              key={`${project.id}-${project.projectName}-${
-                project.creationDate
-              }-${project.status}-${new Date().toISOString()}`}
+              key={`${project.id}-${project.projectName}`}
               date={project.creationDate}
               name={project.projectName}
               status={project.status}
