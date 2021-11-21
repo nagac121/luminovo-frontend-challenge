@@ -91,8 +91,9 @@ const ProjectCard: React.FC<CardProps> = ({ date, name, status }) => {
 function App() {
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [searchResult, setSearchResult] = useState<ProjectItem[]>([]);
-  const [fromDateValue, setFromDateValue] = useState(null);
-  const [toDateValue, setToDateValue] = useState(null);
+  const [fromDateValue, setFromDateValue] = useState("");
+  const [toDateValue, setToDateValue] = useState("");
+  const [filteredProjects, setFilteredProjects] = useState<ProjectItem[]>([]);
 
   // const [sortedField, setSortedField] = useState<string>("");
   // let sortedProjects = [...projects];
@@ -110,8 +111,6 @@ function App() {
 
   function sanitizeProjectsData(projectsData: any) {
     const prjDataArr: any[] = [];
-    // console.log("data len: ", projectsData.data.length);
-
     for (let project of projectsData.data) {
       if (new Date(project.creationDate).toDateString() === "Invalid Date") {
         // adding hardcoded date to recognize invalid dates
@@ -150,7 +149,6 @@ function App() {
     return [...projects].sort((a, b) => {
       let date1 = new Date(a.creationDate);
       let date2 = new Date(b.creationDate);
-
       if (sortedType === "earliest") {
         return date1.getTime() - date2.getTime();
       } else if (sortedType === "latest") {
@@ -162,7 +160,6 @@ function App() {
   }
 
   function handleSearch(event: any, newValue: string): void {
-    // console.log("srch: ",event.target, newValue);
     const searchedProjects = projects.reduce(
       (acc: ProjectItem[], curVal: ProjectItem): ProjectItem[] => {
         if (curVal.projectName === newValue) {
@@ -174,8 +171,8 @@ function App() {
     );
     setSearchResult(searchedProjects);
   }
+
   const handleDateChange = (flag: string, newValue: any) => {
-    // console.log(flag, newValue);
     if (flag === "fromDate") {
       setFromDateValue(newValue);
     } else {
@@ -184,7 +181,20 @@ function App() {
   };
 
   const handleFilterClick = () => {
-    // console.log("filter: ", fromDateValue, toDateValue);
+    const fromTime = new Date(fromDateValue).getTime();
+    const toTime = new Date(toDateValue).getTime();
+    const filteredProjects = projects.reduce(
+      (acc: ProjectItem[], curVal: ProjectItem) => {
+        const curValTime = new Date(curVal.creationDate).getTime();
+        // inclusive filtering
+        if (curValTime >= fromTime && curValTime <= toTime) {
+          acc.push(curVal);
+        }
+        return acc;
+      },
+      []
+    );
+    setFilteredProjects(filteredProjects);
   };
 
   // render App
@@ -214,6 +224,7 @@ function App() {
           )}
           onChange={(event, newValue) => handleSearch(event, newValue)}
         />
+
         <Button
           className={classes.root}
           variant="contained"
@@ -232,7 +243,6 @@ function App() {
               value={fromDateValue}
               onChange={(newValue) => handleDateChange("fromDate", newValue)}
               renderInput={(params) => {
-                // console.log("input: ", params.inputProps);
                 return (
                   <TextField
                     {...params}
@@ -250,7 +260,6 @@ function App() {
               value={toDateValue}
               onChange={(newValue) => handleDateChange("toDate", newValue)}
               renderInput={(params) => {
-                // console.log("input: ", params.inputProps);
                 return (
                   <TextField
                     {...params}
