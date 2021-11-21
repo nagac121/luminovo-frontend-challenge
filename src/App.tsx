@@ -356,10 +356,10 @@ function App() {
       </div>
 
       <div className="projects-content">
-        {projects.map((project) => {
+        {projects.map((project,index) => {
           return (
             <ProjectCard
-              key={`${project.id}-${project.projectName}`}
+              key={`${project.id}-${index}`}
               date={project.creationDate}
               name={project.projectName}
               status={project.status}
