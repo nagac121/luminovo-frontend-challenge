@@ -8,6 +8,9 @@ import TextField from "@mui/material/TextField";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import DateTimePicker from "@mui/lab/DateTimePicker";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import InfiniteScroll from "react-infinite-scroll-component";
+
+const SCROLL_LIMIT = 20;
 
 interface ProjectItem {
   creationDate: any;
@@ -94,6 +97,9 @@ function App() {
   const [fromDateValue, setFromDateValue] = useState("");
   const [toDateValue, setToDateValue] = useState("");
   const [statusDDL, setStatusDDL] = useState<any>([]);
+  const [scrollMark, setScrollMark] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+
   const classes = useStyles();
 
   // Fetch Projects
@@ -131,7 +137,14 @@ function App() {
   useEffect(() => {
     const getProjects = async () => {
       const projectsFromServer = await fetchProjects(null);
-      setProjects(projectsFromServer);
+      // set display content
+      const projectSet = initialProjects(projectsFromServer);
+      setProjects(projectSet);
+
+      // set hasMore state
+      const more = checkHasMore(projectSet, projectsFromServer);
+      setHasMore(more);
+
       // preparing status obj
       let statusSet = new Set();
       projectsFromServer.forEach((project: ProjectItem) => {
@@ -152,9 +165,47 @@ function App() {
     getProjects();
   }, [fetchProjects]);
 
+  function checkHasMore(currentSet: any[], totalData: any[]) {
+    const more = currentSet.length < totalData.length;
+    return more;
+  }
+
+  const fetchMoreData = () => {
+    const projectSet: any[] = [];
+    // fetched projects for onload scroll
+    const limit = scrollMark + SCROLL_LIMIT;
+
+    for (let i = scrollMark; i < limit; i++) {
+      if (fetchedProjects[i]) {
+        projectSet.push(fetchedProjects[i]);
+      }
+    }
+    let obj: any[] = [];
+    if (projectSet.length) {
+      obj = [...projects, ...projectSet];
+      setProjects(obj);
+    }
+    if (obj.length < fetchedProjects.length) {
+      setScrollMark(scrollMark + SCROLL_LIMIT);
+      setHasMore(true);
+    } else {
+      setHasMore(false);
+    }
+  };
+
   function handleSortClick(sortedType: "earliest" | "latest") {
     const sorted = sortProjects(fetchedProjects, sortedType);
-    setProjects(sorted);
+    const projectSet = initialProjects(sorted);
+    setProjects(projectSet);
+  }
+
+  function initialProjects(items: ProjectItem[]) {
+    const projectSet: ProjectItem[] = [];
+    for (let i = 0; i < SCROLL_LIMIT; i++) {
+      projectSet.push(items[i]);
+    }
+    setScrollMark(SCROLL_LIMIT);
+    return projectSet;
   }
 
   function sortProjects(projects: ProjectItem[], sortedType: string) {
@@ -262,7 +313,7 @@ function App() {
         <Autocomplete
           id="project-search"
           freeSolo
-          options={projects.map((project) => project.projectName)}
+          options={fetchedProjects.map((project) => project.projectName)}
           autoComplete={true}
           autoHighlight={true}
           renderInput={(params) => (
@@ -356,16 +407,28 @@ function App() {
       </div>
 
       <div className="projects-content">
-        {projects.map((project,index) => {
-          return (
-            <ProjectCard
-              key={`${project.id}-${index}`}
-              date={project.creationDate}
-              name={project.projectName}
-              status={project.status}
-            />
-          );
-        })}
+        <InfiniteScroll
+          dataLength={projects.length}
+          next={fetchMoreData}
+          hasMore={hasMore}
+          loader={<h4>Loading...</h4>}
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+          }}
+        >
+          {projects.map((project, index) => {
+            return (
+              <ProjectCard
+                key={`${project.id}-${index}`}
+                date={project.creationDate}
+                name={project.projectName}
+                status={project.status}
+              />
+            );
+          })}
+        </InfiniteScroll>
       </div>
     </div>
   );
