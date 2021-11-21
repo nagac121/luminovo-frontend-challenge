@@ -89,6 +89,7 @@ const ProjectCard: React.FC<CardProps> = ({ date, name, status }) => {
 };
 
 function App() {
+  const [fetchedProjects, setFetchedProjects] = useState<ProjectItem[]>([]);
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [searchResult, setSearchResult] = useState<ProjectItem[]>([]);
   const [fromDateValue, setFromDateValue] = useState("");
@@ -106,6 +107,7 @@ function App() {
     const res = await fetch(url);
     let data = await res.json();
     data = sanitizeProjectsData(data);
+    setFetchedProjects(data);
     return data;
   }, []);
 
@@ -139,7 +141,7 @@ function App() {
     getProjects();
   }, [fetchProjects]);
 
-  function handleClick(sortedType: "earliest" | "latest") {
+  function handleSearchClick(sortedType: "earliest" | "latest") {
     setSearchResult([]);
     const sorted = sortProjects(projects, sortedType);
     setProjects(sorted);
@@ -204,7 +206,7 @@ function App() {
         <Button
           className={classes.root}
           variant="contained"
-          onClick={() => handleClick("earliest")}
+          onClick={() => handleSearchClick("earliest")}
           data-testid="earliest-button"
         >
           Earliest
@@ -228,7 +230,7 @@ function App() {
         <Button
           className={classes.root}
           variant="contained"
-          onClick={() => handleClick("latest")}
+          onClick={() => handleSearchClick("latest")}
           data-testid="latest-button"
         >
           Latest
