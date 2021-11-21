@@ -179,7 +179,7 @@ function App() {
     if (selectOption === "clear") {
       setProjects(fetchedProjects);
     } else if (selectOption === "selectOption") {
-      const searchedProjects = projects.reduce(
+      const searchedProjects = fetchedProjects.reduce(
         (acc: ProjectItem[], curVal: ProjectItem): ProjectItem[] => {
           if (curVal.projectName === newValue) {
             acc.push(curVal);
