@@ -414,13 +414,14 @@ function App() {
           hasMore={hasMore}
           scrollThreshold="0.3"
           loader={<h4>Loading...</h4>}
+          height={400}
           style={{
             display: "flex",
             flexWrap: "wrap",
             justifyContent: "center",
           }}
         >
-          {/* <div>{projects.length}</div> */}
+          <div>{projects.length}</div>
           {projects.map((project, index) => {
             return (
               <ProjectCard
