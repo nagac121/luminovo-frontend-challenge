@@ -16,6 +16,7 @@ const DEFAULT_USER_ACTIONS = {
   loaded: false,
   sorted: false,
   searchByProject: false,
+  searchByStatus: false,
 };
 
 interface ProjectItem {
@@ -103,7 +104,8 @@ function App() {
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [sortedProjects, setSortedProjects] = useState<ProjectItem[]>([]);
   const [searchedProjects, setSearchedProjects] = useState<ProjectItem[]>([]);
-  
+  const [statusProjects, setStatusProjects] = useState<ProjectItem[]>([]);
+
   // user actions
   const [fromDateValue, setFromDateValue] = useState("");
   const [toDateValue, setToDateValue] = useState("");
@@ -206,6 +208,9 @@ function App() {
     if (userActions["searchByProject"]) {
       moreProjects = [...searchedProjects];
     }
+    if (userActions["searchByStatus"]) {
+      moreProjects = [...statusProjects];
+    }
 
     for (let i = scrollMark; i < limit; i++) {
       if (moreProjects[i]) {
@@ -285,7 +290,6 @@ function App() {
         []
       );
       setSearchedProjects(searchedProjects);
-      // setProjects(searchedProjects);
       // set initial projects
       if (searchedProjects.length < SCROLL_LIMIT) {
         setProjects(searchedProjects);
@@ -350,7 +354,22 @@ function App() {
         },
         []
       );
-      setProjects(searchedProjects);
+      // setProjects(searchedProjects);
+      setStatusProjects(searchedProjects);
+      // set initial projects
+      if (searchedProjects.length < SCROLL_LIMIT) {
+        setProjects(searchedProjects);
+      } else {
+        const projectSet = initialProjects(searchedProjects);
+        setProjects(projectSet);
+      }
+      setUserActions({
+        ...DEFAULT_USER_ACTIONS,
+        searchByStatus: true,
+      });
+      // set hasMore state
+      const more = searchedProjects.length > SCROLL_LIMIT;
+      setHasMore(more);
     } else {
       // createOption ie typed manually
       alert("Select status from suggestions !");
@@ -480,6 +499,7 @@ function App() {
             justifyContent: "center",
           }}
         >
+          <div>{projects.length}</div>
           {projects.map((project, index) => {
             return (
               <ProjectCard
