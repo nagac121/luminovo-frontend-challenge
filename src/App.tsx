@@ -412,6 +412,7 @@ function App() {
           dataLength={projects.length}
           next={fetchMoreData}
           hasMore={hasMore}
+          scrollThreshold="0.3"
           loader={<h4>Loading...</h4>}
           style={{
             display: "flex",
