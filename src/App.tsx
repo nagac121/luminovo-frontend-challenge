@@ -10,7 +10,12 @@ import DateTimePicker from "@mui/lab/DateTimePicker";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import InfiniteScroll from "react-infinite-scroll-component";
 
+// never changing values
 const SCROLL_LIMIT = 20;
+const DEFAULT_USER_ACTIONS = {
+  onLoad: false,
+  onSort: false,
+};
 
 interface ProjectItem {
   creationDate: any;
@@ -92,14 +97,19 @@ const ProjectCard: React.FC<CardProps> = ({ date, name, status }) => {
 };
 
 function App() {
+  // project state
   const [fetchedProjects, setFetchedProjects] = useState<ProjectItem[]>([]);
   const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [sortedProjects, setSortedProjects] = useState<ProjectItem[]>([]);
+  // user actions
   const [fromDateValue, setFromDateValue] = useState("");
   const [toDateValue, setToDateValue] = useState("");
   const [statusDDL, setStatusDDL] = useState<any>([]);
+  const [userActions, setUserActions] = useState({});
+  // infinite scroll
   const [scrollMark, setScrollMark] = useState(0);
   const [hasMore, setHasMore] = useState(false);
-
+  // styling
   const classes = useStyles();
 
   // Fetch Projects
@@ -161,6 +171,13 @@ function App() {
         });
       }
       setStatusDDL(statusArrObj);
+
+      // set user actions
+      // make everything false, except this particular action
+      setUserActions({
+        ...DEFAULT_USER_ACTIONS,
+        ["onLoad"]: true,
+      });
     };
     getProjects();
   }, [fetchProjects]);
@@ -196,8 +213,15 @@ function App() {
 
   function handleSortClick(sortedType: "earliest" | "latest") {
     const sorted = sortProjects(fetchedProjects, sortedType);
+    setSortedProjects(sorted);
+    // set initial projects
     const projectSet = initialProjects(sorted);
     setProjects(projectSet);
+
+    setUserActions({
+      ...DEFAULT_USER_ACTIONS,
+      ["onSort"]: true,
+    });
   }
 
   function initialProjects(items: ProjectItem[]) {
@@ -421,7 +445,7 @@ function App() {
             justifyContent: "center",
           }}
         >
-          <div>{projects.length}</div>
+          {/* <div>{projects.length}</div> */}
           {projects.map((project, index) => {
             return (
               <ProjectCard
