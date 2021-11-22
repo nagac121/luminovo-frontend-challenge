@@ -17,6 +17,7 @@ const DEFAULT_USER_ACTIONS = {
   sorted: false,
   searchByProject: false,
   searchByStatus: false,
+  filtered: false,
 };
 
 interface ProjectItem {
@@ -105,6 +106,7 @@ function App() {
   const [sortedProjects, setSortedProjects] = useState<ProjectItem[]>([]);
   const [searchedProjects, setSearchedProjects] = useState<ProjectItem[]>([]);
   const [statusProjects, setStatusProjects] = useState<ProjectItem[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<ProjectItem[]>([]);
 
   // user actions
   const [fromDateValue, setFromDateValue] = useState("");
@@ -195,13 +197,10 @@ function App() {
   }
 
   const fetchMoreData = () => {
-    console.log("fetch more method");
-
     const projectSet: any[] = [];
     const limit = scrollMark + SCROLL_LIMIT;
     let moreProjects = [...fetchedProjects];
 
-    console.log("fetch more: ", userActions, userActions.sorted);
     if (userActions["sorted"]) {
       moreProjects = [...sortedProjects];
     }
@@ -210,6 +209,9 @@ function App() {
     }
     if (userActions["searchByStatus"]) {
       moreProjects = [...statusProjects];
+    }
+    if (userActions["filtered"]) {
+      moreProjects = [...filteredProjects];
     }
 
     for (let i = scrollMark; i < limit; i++) {
@@ -332,7 +334,22 @@ function App() {
       },
       []
     );
-    setProjects(filteredProjects);
+    // setProjects(filteredProjects);
+    setFilteredProjects(filteredProjects);
+    // set initial projects
+    if (filteredProjects.length < SCROLL_LIMIT) {
+      setProjects(filteredProjects);
+    } else {
+      const projectSet = initialProjects(filteredProjects);
+      setProjects(projectSet);
+    }
+    setUserActions({
+      ...DEFAULT_USER_ACTIONS,
+      filtered: true,
+    });
+    // set hasMore state
+    const more = filteredProjects.length > SCROLL_LIMIT;
+    setHasMore(more);
   };
 
   function handleStatusChange(
@@ -499,11 +516,10 @@ function App() {
             justifyContent: "center",
           }}
         >
-          <div>{projects.length}</div>
           {projects.map((project, index) => {
             return (
               <ProjectCard
-                key={`${project.id}-${index}}`}
+                key={`${project.id}-${index}`}
                 date={project.creationDate}
                 name={project.projectName}
                 status={project.status}
@@ -512,7 +528,7 @@ function App() {
           })}
         </InfiniteScroll>
         <p style={{ textAlign: "center", display: hasMore ? "none" : "block" }}>
-          <b>End of the results.{projects.length}</b>
+          <b>End of the results {projects.length}.</b>
         </p>
       </div>
     </div>
