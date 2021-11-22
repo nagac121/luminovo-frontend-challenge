@@ -105,7 +105,7 @@ function App() {
   const [fromDateValue, setFromDateValue] = useState("");
   const [toDateValue, setToDateValue] = useState("");
   const [statusDDL, setStatusDDL] = useState<any>([]);
-  const [userActions, setUserActions] = useState({});
+  const [userActions, setUserActions] = useState(DEFAULT_USER_ACTIONS);
   // infinite scroll
   const [scrollMark, setScrollMark] = useState(0);
   const [hasMore, setHasMore] = useState(false);
@@ -174,9 +174,11 @@ function App() {
 
       // set user actions
       // make everything false, except this particular action
-      setUserActions({
-        ...DEFAULT_USER_ACTIONS,
-        ["loaded"]: true,
+      setUserActions((prevState) => {
+        return {
+          ...DEFAULT_USER_ACTIONS,
+          "loaded": true,
+        };
       });
     };
     getProjects();
@@ -188,20 +190,23 @@ function App() {
   }
 
   const fetchMoreData = () => {
+    console.log("fetch more method");
+    
     const projectSet: any[] = [];
     const limit = scrollMark + SCROLL_LIMIT;
-    let moreProjects = [];
-    console.log("user actions: ", userActions);
+    let moreProjects = [...fetchedProjects];
 
-    //  if(userActions["sorted"]){
-    //    moreProjects = [...sortedProjects];
-    //  }
+    console.log("fetch more: ", userActions, userActions.sorted);
+    if (userActions["sorted"]) {
+      moreProjects = [...sortedProjects];
+    }
 
     for (let i = scrollMark; i < limit; i++) {
-      if (fetchedProjects[i]) {
-        projectSet.push(fetchedProjects[i]);
+      if (moreProjects[i]) {
+        projectSet.push(moreProjects[i]);
       }
     }
+    // create project set
     let obj: any[] = [];
     if (!!projectSet.length) {
       // projects is existing, projectSet is incoming
@@ -209,7 +214,7 @@ function App() {
       setProjects(obj);
     }
     if (obj.length < fetchedProjects.length) {
-      setScrollMark(scrollMark + SCROLL_LIMIT);
+      setScrollMark(limit);
       setHasMore(true);
     } else {
       setHasMore(false);
@@ -225,8 +230,15 @@ function App() {
 
     setUserActions({
       ...DEFAULT_USER_ACTIONS,
-      ["sorted"]: true,
+      "sorted": true,
     });
+    console.log("sortclick: ", {
+      ...DEFAULT_USER_ACTIONS,
+      "sorted": true,
+    });
+     // set hasMore state
+     const more = sorted.length > SCROLL_LIMIT;
+     setHasMore(more);
   }
 
   function initialProjects(items: ProjectItem[]) {
@@ -441,7 +453,7 @@ function App() {
           dataLength={projects.length}
           next={fetchMoreData}
           hasMore={hasMore}
-          scrollThreshold="50%"
+          scrollThreshold="30%"
           loader={<h4>Loading...</h4>}
           height={400}
           style={{
@@ -463,7 +475,7 @@ function App() {
           })}
         </InfiniteScroll>
         <p style={{ textAlign: "center", display: hasMore ? "none" : "block" }}>
-          <b>End of the results.</b>
+          <b>End of the results.{projects.length}</b>
         </p>
       </div>
     </div>
