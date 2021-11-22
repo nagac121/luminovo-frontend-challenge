@@ -15,6 +15,7 @@ const SCROLL_LIMIT = 20;
 const DEFAULT_USER_ACTIONS = {
   loaded: false,
   sorted: false,
+  searchByProject: false,
 };
 
 interface ProjectItem {
@@ -101,6 +102,8 @@ function App() {
   const [fetchedProjects, setFetchedProjects] = useState<ProjectItem[]>([]);
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [sortedProjects, setSortedProjects] = useState<ProjectItem[]>([]);
+  const [searchedProjects, setSearchedProjects] = useState<ProjectItem[]>([]);
+  
   // user actions
   const [fromDateValue, setFromDateValue] = useState("");
   const [toDateValue, setToDateValue] = useState("");
@@ -177,7 +180,7 @@ function App() {
       setUserActions((prevState) => {
         return {
           ...DEFAULT_USER_ACTIONS,
-          "loaded": true,
+          loaded: true,
         };
       });
     };
@@ -191,7 +194,7 @@ function App() {
 
   const fetchMoreData = () => {
     console.log("fetch more method");
-    
+
     const projectSet: any[] = [];
     const limit = scrollMark + SCROLL_LIMIT;
     let moreProjects = [...fetchedProjects];
@@ -199,6 +202,9 @@ function App() {
     console.log("fetch more: ", userActions, userActions.sorted);
     if (userActions["sorted"]) {
       moreProjects = [...sortedProjects];
+    }
+    if (userActions["searchByProject"]) {
+      moreProjects = [...searchedProjects];
     }
 
     for (let i = scrollMark; i < limit; i++) {
@@ -230,15 +236,12 @@ function App() {
 
     setUserActions({
       ...DEFAULT_USER_ACTIONS,
-      "sorted": true,
+      sorted: true,
     });
-    console.log("sortclick: ", {
-      ...DEFAULT_USER_ACTIONS,
-      "sorted": true,
-    });
-     // set hasMore state
-     const more = sorted.length > SCROLL_LIMIT;
-     setHasMore(more);
+
+    // set hasMore state
+    const more = sorted.length > SCROLL_LIMIT;
+    setHasMore(more);
   }
 
   function initialProjects(items: ProjectItem[]) {
@@ -281,7 +284,22 @@ function App() {
         },
         []
       );
-      setProjects(searchedProjects);
+      setSearchedProjects(searchedProjects);
+      // setProjects(searchedProjects);
+      // set initial projects
+      if (searchedProjects.length < SCROLL_LIMIT) {
+        setProjects(searchedProjects);
+      } else {
+        const projectSet = initialProjects(searchedProjects);
+        setProjects(projectSet);
+      }
+      setUserActions({
+        ...DEFAULT_USER_ACTIONS,
+        searchByProject: true,
+      });
+      // set hasMore state
+      const more = searchedProjects.length > SCROLL_LIMIT;
+      setHasMore(more);
     } else {
       // createOption ie typed manually
       alert("Select Project from suggestions !");
@@ -462,11 +480,10 @@ function App() {
             justifyContent: "center",
           }}
         >
-          <div>{projects.length}</div>
           {projects.map((project, index) => {
             return (
               <ProjectCard
-                key={`${project.id}-${index}`}
+                key={`${project.id}-${index}}`}
                 date={project.creationDate}
                 name={project.projectName}
                 status={project.status}
