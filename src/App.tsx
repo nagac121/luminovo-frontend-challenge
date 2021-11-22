@@ -10,11 +10,11 @@ import DateTimePicker from "@mui/lab/DateTimePicker";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import InfiniteScroll from "react-infinite-scroll-component";
 
-// never changing values
+// Default values
 const SCROLL_LIMIT = 20;
 const DEFAULT_USER_ACTIONS = {
-  onLoad: false,
-  onSort: false,
+  loaded: false,
+  sorted: false,
 };
 
 interface ProjectItem {
@@ -176,7 +176,7 @@ function App() {
       // make everything false, except this particular action
       setUserActions({
         ...DEFAULT_USER_ACTIONS,
-        ["onLoad"]: true,
+        ["loaded"]: true,
       });
     };
     getProjects();
@@ -189,8 +189,13 @@ function App() {
 
   const fetchMoreData = () => {
     const projectSet: any[] = [];
-    // fetched projects for onload scroll
     const limit = scrollMark + SCROLL_LIMIT;
+    let moreProjects = [];
+    console.log("user actions: ", userActions);
+
+    //  if(userActions["sorted"]){
+    //    moreProjects = [...sortedProjects];
+    //  }
 
     for (let i = scrollMark; i < limit; i++) {
       if (fetchedProjects[i]) {
@@ -220,7 +225,7 @@ function App() {
 
     setUserActions({
       ...DEFAULT_USER_ACTIONS,
-      ["onSort"]: true,
+      ["sorted"]: true,
     });
   }
 
@@ -436,7 +441,7 @@ function App() {
           dataLength={projects.length}
           next={fetchMoreData}
           hasMore={hasMore}
-          scrollThreshold="0.3"
+          scrollThreshold="50%"
           loader={<h4>Loading...</h4>}
           height={400}
           style={{
@@ -445,7 +450,7 @@ function App() {
             justifyContent: "center",
           }}
         >
-          {/* <div>{projects.length}</div> */}
+          <div>{projects.length}</div>
           {projects.map((project, index) => {
             return (
               <ProjectCard
@@ -457,6 +462,9 @@ function App() {
             );
           })}
         </InfiniteScroll>
+        <p style={{ textAlign: "center", display: hasMore ? "none" : "block" }}>
+          <b>End of the results.</b>
+        </p>
       </div>
     </div>
   );
