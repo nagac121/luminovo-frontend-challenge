@@ -137,7 +137,7 @@ function App() {
   useEffect(() => {
     const getProjects = async () => {
       const projectsFromServer = await fetchProjects(null);
-      // set display content
+      // set JSX data
       const projectSet = initialProjects(projectsFromServer);
       setProjects(projectSet);
 
@@ -181,7 +181,8 @@ function App() {
       }
     }
     let obj: any[] = [];
-    if (projectSet.length) {
+    if (!!projectSet.length) {
+      // projects is existing, projectSet is incoming
       obj = [...projects, ...projectSet];
       setProjects(obj);
     }
@@ -418,6 +419,7 @@ function App() {
             justifyContent: "center",
           }}
         >
+          {/* <div>{projects.length}</div> */}
           {projects.map((project, index) => {
             return (
               <ProjectCard
