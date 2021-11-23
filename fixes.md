@@ -60,3 +60,16 @@ if (new Date(project.creationDate).toDateString() === "Invalid Date") {
  project.creationDate = new Date("2000-01-01T00:00:00.000Z").toISOString();
 }
 ```
+# Known bugs
+1. run `npm run run-server-big`.
+2. click on 'search by project' or 'search by status' gives `Warning: Encountered two children with the same key`.
+
+## Solutions tried
+gave unique key to `options` attribute of <Autocomplete>, 
+```javascript
+ options={statusDDL.map((project: any,index:number) => <li key={`${project.id}-${index}`}>{project.status}</li>)}
+ ```
+and error is gone, 
+but a new error `Uncaught TypeError: Converting circular structure to JSON autocomplete` is occurring, and breaking the application.
+
+I could not find the solution so far.
