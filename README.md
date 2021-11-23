@@ -2,8 +2,6 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
-In the project directory, you can run:
-
 ```javascript
 yarn start
 yarn test
@@ -22,9 +20,7 @@ npm install @mui/material @emotion/react @emotion/styled
 ```
 
 # Running project
-- cd folder in which `naga.bundle` is downloaded.
-- run command `git clone naga.bundle`
-cd naga and run following commands
+
 ```
  npm install
  npm start
