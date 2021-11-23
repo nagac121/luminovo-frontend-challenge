@@ -13,7 +13,7 @@ yarn eject
 # React Components
 `https://www.npmjs.com/package/react-infinite-scroll-component`
 
-# INSTALLATIONS
+# Modules used
 ```javascript
 npm install react-infinite-scroll-component
 npm i date-fns
@@ -21,3 +21,12 @@ npm install @mui/lab
 npm install @mui/material @emotion/react @emotion/styled
 ```
 
+# Running project
+- cd folder in which `naga.bundle` is downloaded.
+- run command `git clone naga.bundle`
+cd naga and run following commands
+```
+ npm install
+ npm start
+ npm run run-server
+```
